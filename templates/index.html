@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <title>Go Note Web App</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        input, textarea, button { display: block; margin: 0.5em 0; width: 300px; }
+        textarea { height: 100px; }
+    </style>
+</head>
+<body>
+<h2>Note Manager</h2>
+<input type="text" id="title" placeholder="Title" />
+<textarea id="content" placeholder="Content"></textarea>
+<div>
+    <button onclick="send('write')">Write</button>
+    <button onclick="send('read')">Read</button>
+    <button onclick="send('delete')">Delete</button>
+    <button onclick="send('delete_all')">Delete All</button>
+    <button onclick="send('shutdown')">Shutdown</button>
+</div>
+<p><strong>Message:</strong></p>
+<pre id="message"></pre>
+
+<script src="/static/static.js"></script>
+</body>
+</html>

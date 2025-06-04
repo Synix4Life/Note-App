@@ -1,42 +1,23 @@
 package main
 
 import (
+	"NoteApp/GUIHandler"
 	"NoteApp/Note"
 	"bufio"
+	"errors"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 )
 
-func loop(data Note.UserNotes, reader *bufio.Reader, username string) {
-	var key string
-	for {
-		fmt.Println("Please input the operation (read, write, delete, delete_all, exit):")
-		key, _ = reader.ReadString('\n')
-		key = strings.TrimSpace(key)
-		if key == "exit" {
-			break
-		}
-		switch key {
-		case "read":
-			Note.Print(data, username)
-		case "write":
-			data[username] = append(data[username], Note.CreateNote(reader))
-		case "delete":
-			var delKey string
-			fmt.Println("Please input which to delete")
-			delKey, _ = reader.ReadString('\n')
-			if Note.DeleteNote(data, username, strings.TrimSpace(delKey)) {
-				fmt.Println("Note deleted.")
-			} else {
-				fmt.Println("Note not found.")
-			}
-		case "delete_all":
-			Note.ClearNotes(data, username)
-		default:
-			fmt.Println("No such operation.")
-		}
+func servePage(w http.ResponseWriter, r *http.Request) {
+	page, err := os.ReadFile("templates/index.html")
+	if err != nil {
+		http.Error(w, "Couldn't load page", 500)
 	}
+	w.Write(page)
 }
 
 func main() {
@@ -51,8 +32,24 @@ func main() {
 
 	fmt.Println("Please input your username")
 	var username, _ = reader.ReadString('\n')
+	username = strings.TrimSpace(username)
 
-	loop(data, reader, strings.TrimSpace(username))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", servePage)
+	mux.HandleFunc("/write", GUIHandler.MakeWriteHandler(data, username))
+	mux.HandleFunc("/read", GUIHandler.MakeReadHandler(data, username))
+	mux.HandleFunc("/delete", GUIHandler.MakeDeleteHandler(data, username))
+	mux.HandleFunc("/delete_all", GUIHandler.MakeDeleteAllHandler(data, username))
+	mux.HandleFunc("/shutdown", GUIHandler.ShutdownHandler)
+
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
+	GUIHandler.Srv = &http.Server{Addr: ":8080", Handler: mux}
+	fmt.Println("Server started at http://localhost:8080")
+
+	if err := GUIHandler.Srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("Server error: %s", err)
+	}
 
 	err = Note.SaveNotes(filename, data)
 	if err != nil {
