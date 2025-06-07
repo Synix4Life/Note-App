@@ -19,13 +19,14 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Shutting down server..."))
 }
 
-func MakeWriteHandler(data Note.UserNotes, username string) http.HandlerFunc {
+func MakeWriteHandler(data Note.UserNotes) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		writeHandler(w, r, data, username)
+		writeHandler(w, r, data)
 	}
 }
 
-func writeHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, username string) {
+func writeHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes) {
+	username, _ := GetUsername(r)
 	var response = GUIRequest{}
 	err := json.NewDecoder(r.Body).Decode(&response)
 	if err != nil {
@@ -43,13 +44,14 @@ func writeHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, u
 	w.Write([]byte("Done!"))
 }
 
-func MakeReadHandler(data Note.UserNotes, username string) http.HandlerFunc {
+func MakeReadHandler(data Note.UserNotes) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		readHandler(w, r, data, username)
+		readHandler(w, r, data)
 	}
 }
 
-func readHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, username string) {
+func readHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes) {
+	username, _ := GetUsername(r)
 	notes := data[username]
 	if len(notes) == 0 {
 		w.Write([]byte("No data found"))
@@ -59,13 +61,14 @@ func readHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, us
 	}
 }
 
-func MakeDeleteHandler(data Note.UserNotes, username string) http.HandlerFunc {
+func MakeDeleteHandler(data Note.UserNotes) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		deleteHandler(w, r, data, username)
+		deleteHandler(w, r, data)
 	}
 }
 
-func deleteHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, username string) {
+func deleteHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes) {
+	username, _ := GetUsername(r)
 	var response = GUIRequest{}
 	err := json.NewDecoder(r.Body).Decode(&response)
 	if err != nil {
@@ -75,18 +78,20 @@ func deleteHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, 
 	title := strings.TrimSpace(response.Title)
 	if title == "" {
 		w.Write([]byte("No data provided"))
+		return
 	}
 	Note.DeleteNote(data, username, title)
 	w.Write([]byte("Deleted"))
 }
 
-func MakeDeleteAllHandler(data Note.UserNotes, username string) http.HandlerFunc {
+func MakeDeleteAllHandler(data Note.UserNotes) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		deleteAllHandler(w, r, data, username)
+		deleteAllHandler(w, r, data)
 	}
 }
 
-func deleteAllHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes, username string) {
+func deleteAllHandler(w http.ResponseWriter, r *http.Request, data Note.UserNotes) {
+	username, _ := GetUsername(r)
 	Note.ClearNotes(data, username)
 	w.Write([]byte("Deleted all"))
 }

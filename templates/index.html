@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <title>Go Note Web App</title>
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        input, textarea, button { display: block; margin: 0.5em 0; width: 300px; }
-        textarea { height: 100px; }
-    </style>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<h2>Note Manager</h2>
-<input type="text" id="title" placeholder="Title" />
-<textarea id="content" placeholder="Content"></textarea>
-<div>
-    <button onclick="send('write')">Write</button>
-    <button onclick="send('read')">Read</button>
-    <button onclick="send('delete')">Delete</button>
-    <button onclick="send('delete_all')">Delete All</button>
-    <button onclick="send('shutdown')">Shutdown</button>
-</div>
-<p><strong>Message:</strong></p>
-<pre id="message"></pre>
-
-<script src="/static/static.js"></script>
+    <div class="login-container">
+        <h2>Enter Username</h2>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Username" required/>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
 </body>
 </html>
