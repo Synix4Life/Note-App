@@ -3,51 +3,11 @@ package main
 import (
 	"NoteApp/GUIHandler"
 	"NoteApp/Note"
-	_ "bufio"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 )
-
-func serveUserPage(w http.ResponseWriter, r *http.Request) {
-	page, err := os.ReadFile("templates/user.html")
-	if err != nil {
-		http.Error(w, "Couldn't load page", 500)
-	}
-	w.Write(page)
-}
-
-func indexPage(w http.ResponseWriter, r *http.Request) {
-	page, err := os.ReadFile("templates/index.html")
-	if err != nil {
-		http.Error(w, "Couldn't load page", 500)
-		return
-	}
-	w.Write(page)
-}
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-	username := strings.TrimSpace(r.FormValue("username"))
-	if username == "" {
-		http.Error(w, "Username required", http.StatusBadRequest)
-		return
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:  "username",
-		Value: username,
-		Path:  "/",
-	})
-
-	http.Redirect(w, r, "/usr/?username="+username, http.StatusSeeOther)
-}
 
 func main() {
 	const filename string = "data.json"
@@ -58,15 +18,15 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", indexPage)
-	mux.HandleFunc("/login", loginHandler)
+	mux.HandleFunc("/", GUIHandler.ServeIndexPage)
+	mux.HandleFunc("/login", GUIHandler.LoginHandler)
 	mux.HandleFunc("/usr/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := GUIHandler.GetUsername(r)
 		if err != nil {
 			http.Error(w, "No username provided", http.StatusForbidden)
 			return
 		}
-		serveUserPage(w, r)
+		GUIHandler.ServeUserPage(w, r)
 	})
 	mux.HandleFunc("/write", GUIHandler.MakeWriteHandler(data))
 	mux.HandleFunc("/read", GUIHandler.MakeReadHandler(data))

@@ -2,7 +2,6 @@ package GUIHandler
 
 import (
 	"NoteApp/Note"
-	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -10,14 +9,6 @@ import (
 )
 
 var Srv *http.Server
-
-func ShutdownHandler(w http.ResponseWriter, r *http.Request) {
-	go func() {
-		time.Sleep(1 * time.Second)
-		Srv.Shutdown(context.Background())
-	}()
-	w.Write([]byte("Shutting down server..."))
-}
 
 func MakeWriteHandler(data Note.UserNotes) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
