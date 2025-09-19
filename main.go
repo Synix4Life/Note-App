@@ -2,7 +2,8 @@ package main
 
 import (
 	"NoteApp/GUIHandler"
-	"NoteApp/Note"
+	"NoteApp/SQLNote"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -10,11 +11,14 @@ import (
 )
 
 func main() {
-	const filename string = "data.json"
-
-	data, err := Note.LoadNotes(filename)
+	db, err := sql.Open("sqlite", "notes.db")
 	if err != nil {
-		data = make(Note.UserNotes)
+		log.Fatal("Open: ", err)
+	}
+	defer db.Close()
+
+	if !SQLNote.CreateTable(db) {
+		log.Fatal("Could not create table")
 	}
 
 	mux := http.NewServeMux()
@@ -28,10 +32,10 @@ func main() {
 		}
 		GUIHandler.ServeUserPage(w, r)
 	})
-	mux.HandleFunc("/write", GUIHandler.MakeWriteHandler(data))
-	mux.HandleFunc("/read", GUIHandler.MakeReadHandler(data))
-	mux.HandleFunc("/delete", GUIHandler.MakeDeleteHandler(data))
-	mux.HandleFunc("/delete_all", GUIHandler.MakeDeleteAllHandler(data))
+	mux.HandleFunc("/write", GUIHandler.MakeWriteHandler(db))
+	mux.HandleFunc("/read", GUIHandler.MakeReadHandler(db))
+	mux.HandleFunc("/delete", GUIHandler.MakeDeleteHandler(db))
+	mux.HandleFunc("/help", GUIHandler.MakeHelpHandler())
 	mux.HandleFunc("/shutdown", GUIHandler.ShutdownHandler)
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -41,11 +45,5 @@ func main() {
 
 	if err := GUIHandler.Srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Server error: %s", err)
-	}
-
-	err = Note.SaveNotes(filename, data)
-	if err != nil {
-		fmt.Println("Error saving notes:", err)
-		return
 	}
 }

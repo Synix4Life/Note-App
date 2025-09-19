@@ -1,6 +1,6 @@
 # Note App
 
-![Version](https://img.shields.io/badge/Version-2.0.1-%2300ADD8.svg?style=for-the-badge&)
+![Version](https://img.shields.io/badge/Version-3.0.0-%2300ADD8.svg?style=for-the-badge&)
 ![License](https://img.shields.io/badge/LICENSE-MIT-%2300ADD8.svg?style=for-the-badge&)
 
 ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
@@ -17,12 +17,28 @@ It doesn't feature security mechanisms or similar, it's for personal use only.
 
 ---
 
+### Requirements
+
+This program uses the go module `modernc.org/sqlite`
+
+Therefore, you need to install it first:
+
+```shell
+go get modernc.org/sqlite
+go mod tidy
+```
+
+---
+
 ### Changelog
 
-- Version 1.0.0
+- $\textsf{\color{aqua}Version 1.0.0}$
   - Initial commit
-- Version 2.0.0
+- $\textsf{\color{aqua}Version 2.0.0}$
   - Merge: Web- GUI added
-  - Version 2.0.1
-    - Small fixed
-    - Improved outsourcing
+    - $\textsf{\color{aqua}Version 2.0.1}$
+      - Small fixes
+      - Improved outsourcing
+- $\textsf{\color{aqua}Version 3.0.0}$
+    - Switch to SQLite3 Database
+    - Improved Frontend → Buttons reconfig + Help Button

@@ -1,2 +1,4 @@
 **/.idea/
-data.json
+
+messages.db
+go.sum
